@@ -1,0 +1,905 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PHQ-9 Depression Screening</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#f2f5f3; --surface:#ffffff; --surface-2:#f7f9f8;
+  --ink:#16232b; --ink-2:#4e6069; --ink-3:#7b8b92;
+  --line:#dbe2df; --line-2:#c6d0cc;
+  --petrol:#1d5761; --petrol-soft:#e6efee; --petrol-ink:#12444d;
+  --b1:#2f6f63; --b2:#5c7f4a; --b3:#a9762a; --b4:#92552c; --b5:#8d3f31;
+  --shadow:0 1px 2px rgba(22,35,43,.05), 0 8px 24px -12px rgba(22,35,43,.18);
+  --radius:10px; --btn-fg:#ffffff;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --paper:#0f181d; --surface:#16232a; --surface-2:#1b2a31;
+    --ink:#e8efec; --ink-2:#a3b4b6; --ink-3:#7e9095;
+    --line:#26353c; --line-2:#334650;
+    --petrol:#79bcc0; --petrol-soft:#16323a; --petrol-ink:#a9dbdb;
+    --shadow:0 1px 2px rgba(0,0,0,.3), 0 8px 24px -12px rgba(0,0,0,.6); --btn-fg:#07171b;
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#0f181d; --surface:#16232a; --surface-2:#1b2a31;
+  --ink:#e8efec; --ink-2:#a3b4b6; --ink-3:#7e9095;
+  --line:#26353c; --line-2:#334650;
+  --petrol:#79bcc0; --petrol-soft:#16323a; --petrol-ink:#a9dbdb;
+  --shadow:0 1px 2px rgba(0,0,0,.3), 0 8px 24px -12px rgba(0,0,0,.6); --btn-fg:#07171b;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{
+  margin:0; background:var(--paper); color:var(--ink);
+  font-family:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  font-size:16px; line-height:1.6; letter-spacing:-.003em;
+}
+h1,h2,h3{font-family:Newsreader,Georgia,"Times New Roman",serif;font-weight:500;letter-spacing:-.01em;margin:0}
+p{margin:0}
+a{color:var(--petrol)}
+:focus-visible{outline:2px solid var(--petrol);outline-offset:2px;border-radius:4px}
+.icon{width:1em;height:1em;flex:none;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+.wrap{max-width:760px;margin:0 auto;padding:0 20px}
+
+/* ---------- top bar ---------- */
+.topbar{border-bottom:1px solid var(--line);background:var(--surface)}
+.topbar .wrap{display:flex;align-items:center;gap:12px;min-height:54px;flex-wrap:wrap}
+.mark{display:flex;align-items:center;gap:9px;font-size:13.5px;color:var(--ink-2);margin-right:auto}
+.mark svg{width:22px;height:22px;color:var(--petrol)}
+.mark b{color:var(--ink);font-weight:600}
+.chip{
+  display:inline-flex;align-items:center;gap:6px;font-size:12.5px;color:var(--ink-2);
+  border:1px solid var(--line);border-radius:999px;padding:4px 10px;background:var(--surface-2);
+}
+.chip .dot{width:7px;height:7px;border-radius:50%;background:var(--ink-3)}
+.chip.on .dot{background:var(--b1)}
+.chip svg{width:14px;height:14px}
+.ghost{background:none;border:1px solid var(--line);color:var(--ink-2);border-radius:999px;
+  padding:5px 10px;font:inherit;font-size:12.5px;cursor:pointer;display:inline-flex;align-items:center;gap:6px}
+.ghost:hover{border-color:var(--line-2);color:var(--ink)}
+.ghost svg{width:14px;height:14px}
+
+/* ---------- masthead ---------- */
+.masthead{padding:44px 0 30px}
+.masthead h1{font-size:clamp(2.6rem,9vw,4rem);line-height:.98}
+.masthead .sub{font-family:Newsreader,serif;font-size:clamp(1.05rem,3.2vw,1.3rem);color:var(--ink-2);margin-top:6px}
+.lede{margin-top:16px;max-width:60ch;color:var(--ink-2)}
+.facts{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+
+/* ---------- the 0-27 scale, drawn in HTML so it stays legible at any width ---------- */
+.scalebar{margin:28px 0 4px;position:relative}
+.scalebar .names{display:flex;gap:2px;font-size:10.5px;color:var(--ink-3);margin-bottom:5px}
+.scalebar .names span{text-align:center;overflow:hidden;white-space:nowrap}
+.scalebar .bands{display:flex;gap:2px;height:10px;position:relative}
+.scalebar .bands span:first-child{border-radius:99px 0 0 99px}
+.scalebar .bands span:last-child{border-radius:0 99px 99px 0}
+.scalebar .ticks{position:relative;height:22px;margin-top:4px}
+.scalebar .ticks span{position:absolute;top:0;font-size:10.5px;color:var(--ink-3);
+  font-variant-numeric:tabular-nums;transform:translateX(-50%);padding-top:7px}
+.scalebar .ticks span::before{content:"";position:absolute;top:0;left:50%;width:1px;height:5px;background:var(--line-2)}
+.scalebar .ticks span:first-child{transform:none}
+.scalebar .ticks span:first-child::before{left:0}
+.scalebar .ticks span:last-child{transform:translateX(-100%)}
+.scalebar .ticks span:last-child::before{left:auto;right:0}
+.scalebar .needle{position:absolute;top:-4px;left:0;width:0;height:18px;z-index:2;
+  border-left:2px solid var(--ink);transition:left .85s cubic-bezier(.2,.8,.25,1)}
+.scalebar .needle::before{content:"";position:absolute;top:-10px;left:-7px;
+  border-left:7px solid transparent;border-right:7px solid transparent;border-top:9px solid var(--ink)}
+.scalebar.measured .bands{opacity:.55}
+@media (prefers-reduced-motion:reduce){.scalebar .needle{transition:none}.track i{transition:none}}
+@media (max-width:520px){.scalebar .names{display:none}}
+
+/* ---------- sections ---------- */
+section{margin-bottom:22px}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow)}
+.panel-hd{padding:18px 22px;border-bottom:1px solid var(--line);display:flex;align-items:baseline;gap:12px;flex-wrap:wrap}
+.panel-hd h2{font-size:1.35rem}
+.panel-hd .hint{font-size:13px;color:var(--ink-3);margin-left:auto}
+.panel-bd{padding:22px}
+
+/* ---------- form fields ---------- */
+.fields{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.field.wide{grid-column:1/-1}
+.field label{display:flex;align-items:center;gap:7px;font-size:13.5px;font-weight:500;color:var(--ink-2);margin-bottom:6px}
+.field label svg{width:15px;height:15px;color:var(--petrol)}
+.field input,.field select{
+  width:100%;padding:11px 12px;font:inherit;font-size:15px;color:var(--ink);
+  background:var(--surface);border:1px solid var(--line-2);border-radius:8px;
+}
+.field select{appearance:none;background-image:url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%237b8b92' stroke-width='2' stroke-linecap='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 10px center;background-size:16px;padding-right:34px}
+.field input:focus,.field select:focus{border-color:var(--petrol);outline:2px solid var(--petrol);outline-offset:-1px}
+.field .err{display:none;font-size:12.5px;color:var(--b5);margin-top:5px}
+.field.bad input,.field.bad select{border-color:var(--b5)}
+.field.bad .err{display:block}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .field .err{color:#e59182}}
+:root[data-theme="dark"] .field .err{color:#e59182}
+
+/* ---------- questions ---------- */
+.stem{padding:16px 22px;background:var(--petrol-soft);border-bottom:1px solid var(--line);
+  font-family:Newsreader,serif;font-size:1.08rem;color:var(--petrol-ink)}
+.q{display:grid;grid-template-columns:30px 1fr;gap:0 14px;padding:20px 22px;border-bottom:1px solid var(--line);margin:0;border-width:0 0 1px;min-width:0}
+.q:last-of-type{border-bottom:0}
+.q.bad{background:color-mix(in srgb,var(--b5) 6%,transparent)}
+.qn{font-family:Newsreader,serif;font-size:1.25rem;color:var(--ink-3);line-height:1.35;padding-top:1px}
+.qt{font-size:15.5px;line-height:1.5;padding:0;margin:0 0 12px;display:block}
+.scale{grid-column:2;display:grid;grid-template-columns:repeat(4,1fr);gap:7px}
+.opt{position:relative;display:flex;cursor:pointer}
+.opt input{position:absolute;opacity:0;width:1px;height:1px;margin:0}
+.opt span{
+  display:flex;flex-direction:column;gap:2px;flex:1;
+  border:1px solid var(--line-2);border-radius:8px;padding:9px 10px;
+  font-size:12.7px;line-height:1.3;color:var(--ink-2);background:var(--surface);transition:background .12s,border-color .12s}
+.opt span i{font-style:normal;font-size:11px;color:var(--ink-3);font-variant-numeric:tabular-nums}
+.opt:hover span{background:var(--surface-2)}
+.opt input:checked + span{background:var(--petrol-soft);border-color:var(--petrol);color:var(--petrol-ink);font-weight:500}
+.opt input:checked + span i{color:var(--petrol)}
+.opt input:focus-visible + span{outline:2px solid var(--petrol);outline-offset:2px}
+.qerr{grid-column:2;font-size:12.5px;color:var(--b5);margin-top:8px;display:none}
+.q.bad .qerr{display:block}
+
+/* ---------- consent + submit ---------- */
+.consent{display:flex;gap:11px;align-items:flex-start;padding:18px 22px;border-top:1px solid var(--line);font-size:13.5px;color:var(--ink-2)}
+.consent input{margin:3px 0 0;width:17px;height:17px;accent-color:var(--petrol);flex:none}
+.consent.bad{color:var(--b5)}
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:8px;
+  font:inherit;font-size:15px;font-weight:500;padding:12px 20px;border-radius:8px;cursor:pointer;
+  background:var(--petrol);color:var(--btn-fg);border:1px solid var(--petrol);
+}
+.btn:hover{filter:brightness(1.08)}
+.btn svg{width:16px;height:16px}
+.btn.quiet{background:transparent;color:var(--ink);border-color:var(--line-2)}
+.btn.quiet:hover{background:var(--surface-2);filter:none}
+.btn.danger{background:transparent;color:var(--b5);border-color:var(--line-2)}
+.btn.danger:hover{background:color-mix(in srgb,var(--b5) 8%,transparent);filter:none}
+.btn[disabled]{opacity:.45;cursor:not-allowed;filter:none}
+
+.actionbar{position:sticky;bottom:0;z-index:20;background:var(--surface);border:1px solid var(--line);
+  border-radius:var(--radius);box-shadow:0 -6px 22px -14px rgba(22,35,43,.4);padding:13px 18px;
+  display:flex;align-items:center;gap:16px;margin-bottom:28px}
+.prog{flex:1;min-width:0}
+.prog .lbl{font-size:12.5px;color:var(--ink-2);font-variant-numeric:tabular-nums;margin-bottom:6px}
+.track{height:5px;background:var(--line);border-radius:99px;overflow:hidden}
+.track i{display:block;height:100%;width:0;background:var(--petrol);border-radius:99px;transition:width .25s ease}
+
+/* ---------- result ---------- */
+.result{display:none}
+.readout{display:flex;align-items:flex-end;gap:18px;flex-wrap:wrap}
+.readout .num{font-family:Newsreader,serif;font-size:4.1rem;line-height:.9;font-variant-numeric:tabular-nums}
+.readout .den{font-size:14px;color:var(--ink-3);padding-bottom:9px}
+.band{display:inline-flex;align-items:center;gap:8px;color:#fff;border-radius:999px;padding:6px 14px;font-size:13.5px;font-weight:500;margin-bottom:6px}
+.interp{margin-top:18px;font-size:15px;color:var(--ink-2);max-width:62ch}
+.note{border-left:3px solid var(--line-2);padding:2px 0 2px 14px;margin-top:18px;font-size:13.5px;color:var(--ink-2)}
+.support{border:1px solid var(--b5);background:color-mix(in srgb,var(--b5) 7%,var(--surface));
+  border-radius:var(--radius);padding:20px 22px;margin-top:22px}
+.support h3{font-size:1.2rem;margin-bottom:8px;display:flex;align-items:center;gap:9px}
+.support h3 svg{width:19px;height:19px;color:var(--b5)}
+.lines{list-style:none;padding:0;margin:14px 0 0;display:grid;gap:10px}
+.lines li{display:flex;gap:11px;align-items:flex-start;font-size:14px}
+.lines svg{width:16px;height:16px;color:var(--b5);margin-top:4px}
+.lines b{font-weight:600}
+.lines span{color:var(--ink-2);font-size:13px;display:block}
+.lines a{color:inherit;font-weight:600;text-decoration:none;border-bottom:1px solid var(--line-2)}
+.breakdown{margin-top:22px;width:100%;border-collapse:collapse;font-size:13.5px}
+.breakdown td{padding:7px 0;border-bottom:1px solid var(--line);vertical-align:top}
+.breakdown td:first-child{color:var(--ink-3);width:26px;font-variant-numeric:tabular-nums}
+.breakdown td:last-child{text-align:right;white-space:nowrap;color:var(--ink-2);padding-left:14px}
+
+/* ---------- admin ---------- */
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:1px;background:var(--line);
+  border:1px solid var(--line);border-radius:8px;overflow:hidden;margin-bottom:20px}
+.stat{background:var(--surface);padding:13px 15px}
+.stat .v{font-family:Newsreader,serif;font-size:1.7rem;line-height:1.1;font-variant-numeric:tabular-nums}
+.stat .k{font-size:12px;color:var(--ink-3);margin-top:2px}
+.dist{display:grid;gap:7px;margin-bottom:22px}
+.dist .row{display:grid;grid-template-columns:130px 1fr 34px;align-items:center;gap:10px;font-size:12.5px}
+.dist .bar{height:9px;border-radius:99px;min-width:2px}
+.dist .ct{text-align:right;color:var(--ink-2);font-variant-numeric:tabular-nums}
+.tablewrap{overflow:auto;max-height:65vh;border:1px solid var(--line);border-radius:8px;-webkit-overflow-scrolling:touch}
+table.recs{width:100%;border-collapse:collapse;font-size:12.5px}
+table.recs th,table.recs td{padding:9px 11px;text-align:left;white-space:nowrap;border-bottom:1px solid var(--line)}
+table.recs th{background:var(--surface-2);font-weight:600;color:var(--ink-2);position:sticky;top:0}
+table.recs tbody tr:last-child td{border-bottom:0}
+table.recs td.flag{color:var(--b5);font-weight:600}
+.empty{padding:34px 20px;text-align:center;color:var(--ink-3);font-size:14px}
+.toolbar{display:flex;gap:9px;flex-wrap:wrap;margin-bottom:18px}
+.msg{font-size:13px;color:var(--ink-2);margin-top:12px;min-height:1.2em}
+
+footer{padding:30px 0 60px;font-size:12.5px;color:var(--ink-3);max-width:66ch}
+footer p+p{margin-top:9px}
+
+@media (max-width:640px){
+  .fields{grid-template-columns:1fr}
+  .scale{grid-template-columns:1fr 1fr}
+  .q{grid-template-columns:24px 1fr;gap:0 10px;padding:18px 16px}
+  .panel-bd,.panel-hd,.stem,.consent{padding-left:16px;padding-right:16px}
+  .readout .num{font-size:3.2rem}
+  .dist .row{grid-template-columns:96px 1fr 30px}
+}
+@media print{
+  .topbar,.actionbar,.admin-shell,.no-print,footer{display:none!important}
+  body{background:#fff}
+  .panel{box-shadow:none;border-color:#ccc}
+}
+</style>
+</head>
+<body>
+
+<svg style="display:none" aria-hidden="true">
+  <symbol id="i-logo" viewBox="0 0 24 24"><path d="M3 12h3l2.5-6 3.5 12 3-9 2 3h4" stroke-width="1.7" fill="none"/></symbol>
+  <symbol id="i-mail" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3.5 6.5 8.5 6 8.5-6"/></symbol>
+  <symbol id="i-cal" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></symbol>
+  <symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.5"/><path d="M4.5 20a7.5 7.5 0 0 1 15 0"/></symbol>
+  <symbol id="i-work" viewBox="0 0 24 24"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M9 7V5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2M3 13h18"/></symbol>
+  <symbol id="i-inst" viewBox="0 0 24 24"><path d="M3 21h18M5 21V9l7-4 7 4v12M9.5 21v-5h5v5"/></symbol>
+  <symbol id="i-lock" viewBox="0 0 24 24"><rect x="4.5" y="10" width="15" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="m4.5 12.5 5 5 10-11"/></symbol>
+  <symbol id="i-down" viewBox="0 0 24 24"><path d="M12 4v12m0 0 4.5-4.5M12 16l-4.5-4.5M4 20h16"/></symbol>
+  <symbol id="i-trash" viewBox="0 0 24 24"><path d="M4 7h16M9 7V5h6v2M6 7l1 13h10l1-13"/></symbol>
+  <symbol id="i-phone" viewBox="0 0 24 24"><path d="M6 3h3l2 5-2.5 1.5a11 11 0 0 0 6 6L16 13l5 2v3a2 2 0 0 1-2.2 2A16 16 0 0 1 4 5.2 2 2 0 0 1 6 3z"/></symbol>
+  <symbol id="i-heart" viewBox="0 0 24 24"><path d="M12 20s-7-4.4-7-9.4A4 4 0 0 1 12 8a4 4 0 0 1 7 2.6c0 5-7 9.4-7 9.4z"/></symbol>
+  <symbol id="i-refresh" viewBox="0 0 24 24"><path d="M20 11a8 8 0 1 0-1.8 6M20 5v6h-6"/></symbol>
+  <symbol id="i-print" viewBox="0 0 24 24"><path d="M7 9V3h10v6M7 19H5a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2M7 15h10v6H7z"/></symbol>
+  <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5.5l3.5 2"/></symbol>
+  <symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 3l7 3v6c0 4.5-3 7.6-7 9-4-1.4-7-4.5-7-9V6z"/><path d="m9 12 2 2 4-4"/></symbol>
+  <symbol id="i-list" viewBox="0 0 24 24"><path d="M8 6h13M8 12h13M8 18h13M3.5 6h.01M3.5 12h.01M3.5 18h.01"/></symbol>
+</svg>
+
+<div class="topbar">
+  <div class="wrap">
+    <span class="mark">
+      <svg class="icon"><use href="#i-logo"/></svg>
+      <span><b>Institute of Health Economics</b> · University of Dhaka</span>
+    </span>
+    <span class="chip" id="storeChip" title="Where submitted responses are kept"><span class="dot"></span><span id="storeTxt">This browser only</span></span>
+    <button class="ghost" id="themeBtn" type="button" aria-label="Switch colour theme">
+      <svg class="icon"><use href="#i-heart"/></svg><span id="themeTxt">Dark</span>
+    </button>
+  </div>
+</div>
+
+<div class="wrap">
+
+  <header class="masthead">
+    <h1>PHQ-9</h1>
+    <div class="sub">Patient Health Questionnaire &mdash; depression module</div>
+    <p class="lede">Nine questions about how you have been feeling over the last two weeks. Each answer scores 0 to 3, so the total runs from 0 to 27. It takes about two minutes.</p>
+
+    <div class="scalebar" aria-hidden="true">
+      <div class="names">
+        <span style="flex:5">Minimal</span><span style="flex:5">Mild</span><span style="flex:5">Moderate</span>
+        <span style="flex:5">Moderately severe</span><span style="flex:8">Severe</span>
+      </div>
+      <div class="bands">
+        <span style="flex:5;background:var(--b1)"></span><span style="flex:5;background:var(--b2)"></span>
+        <span style="flex:5;background:var(--b3)"></span><span style="flex:5;background:var(--b4)"></span>
+        <span style="flex:8;background:var(--b5)"></span>
+      </div>
+      <div class="ticks">
+        <span style="left:0%">0</span><span style="left:17.86%">5</span><span style="left:35.71%">10</span>
+        <span style="left:53.57%">15</span><span style="left:71.43%">20</span><span style="left:100%">27</span>
+      </div>
+    </div>
+
+    <div class="facts">
+      <span class="chip"><svg class="icon"><use href="#i-list"/></svg>9 scored items</span>
+      <span class="chip"><svg class="icon"><use href="#i-clock"/></svg>About 2 minutes</span>
+      <span class="chip"><svg class="icon"><use href="#i-shield"/></svg>Screening, not a diagnosis</span>
+    </div>
+  </header>
+
+  <form id="phqForm" novalidate>
+
+    <section class="panel">
+      <div class="panel-hd"><h2>About you</h2><span class="hint">All fields required</span></div>
+      <div class="panel-bd">
+        <div class="fields">
+          <div class="field" id="f-email">
+            <label for="email"><svg class="icon"><use href="#i-mail"/></svg>Email address</label>
+            <input type="email" id="email" autocomplete="email" placeholder="name@example.com" inputmode="email">
+            <div class="err">Enter a valid email address.</div>
+          </div>
+          <div class="field" id="f-inst">
+            <label for="institution"><svg class="icon"><use href="#i-inst"/></svg>Institution</label>
+            <input type="text" id="institution" list="instList" autocomplete="organization" placeholder="University or workplace">
+            <datalist id="instList">
+              <option value="University of Dhaka"></option>
+              <option value="Bangladesh University of Engineering and Technology"></option>
+              <option value="Jahangirnagar University"></option>
+              <option value="North South University"></option>
+              <option value="BRAC University"></option>
+              <option value="Dhaka Medical College"></option>
+            </datalist>
+            <div class="err">Tell us where you study or work.</div>
+          </div>
+          <div class="field" id="f-age">
+            <label for="age"><svg class="icon"><use href="#i-cal"/></svg>Age</label>
+            <select id="age"><option value="">Select age</option></select>
+            <div class="err">Select your age.</div>
+          </div>
+          <div class="field" id="f-gender">
+            <label for="gender"><svg class="icon"><use href="#i-user"/></svg>Gender</label>
+            <select id="gender">
+              <option value="">Select gender</option>
+              <option>Male</option><option>Female</option><option>Other</option><option>Prefer not to say</option>
+            </select>
+            <div class="err">Select an option.</div>
+          </div>
+          <div class="field wide" id="f-occ">
+            <label for="occupation"><svg class="icon"><use href="#i-work"/></svg>Occupation</label>
+            <select id="occupation">
+              <option value="">Select occupation</option>
+              <option>Student</option><option>Teacher / Faculty</option><option>Researcher</option>
+              <option>Healthcare professional</option><option>Government employee</option>
+              <option>Private sector employee</option><option>Self-employed / Business</option>
+              <option>Unemployed</option><option>Other</option>
+            </select>
+            <div class="err">Select an option.</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="panel-hd"><h2>The questionnaire</h2></div>
+      <div class="stem">Over the <strong>last two weeks</strong>, how often have you been bothered by any of the following problems?</div>
+      <div id="questions"></div>
+      <div class="stem" style="border-top:1px solid var(--line);border-bottom:0" id="fnStem">One last question, which is not part of the score.</div>
+      <div class="q" id="q-fn" role="group" aria-labelledby="qt-fn" style="border-bottom:0">
+        <div class="qn">10</div>
+        <div class="qt" id="qt-fn">If you ticked off any problems above, how difficult have they made it to do your work, take care of things at home, or get along with other people?</div>
+        <div class="scale" id="fnScale"></div>
+      </div>
+      <label class="consent" id="consentBox">
+        <input type="checkbox" id="consent">
+        <span>I am taking part voluntarily and agree that my answers may be used, in anonymised form, for research at the Institute of Health Economics.</span>
+      </label>
+    </section>
+
+    <div class="actionbar" id="actionbar">
+      <div class="prog">
+        <div class="lbl" id="progLbl">0 of 9 answered</div>
+        <div class="track"><i id="progFill"></i></div>
+      </div>
+      <button class="btn" type="submit"><svg class="icon"><use href="#i-check"/></svg>Calculate score</button>
+    </div>
+  </form>
+
+  <section class="panel result" id="result" tabindex="-1">
+    <div class="panel-hd"><h2>Your result</h2><span class="hint" id="resultStamp"></span></div>
+    <div class="panel-bd">
+      <div class="readout">
+        <div>
+          <div class="band" id="bandChip">&nbsp;</div>
+          <div><span class="num" id="scoreNum">0</span><span class="den"> of 27</span></div>
+        </div>
+      </div>
+
+      <div class="scalebar measured" style="margin-top:34px" aria-hidden="true">
+        <div class="names">
+          <span style="flex:5">Minimal</span><span style="flex:5">Mild</span><span style="flex:5">Moderate</span>
+          <span style="flex:5">Moderately severe</span><span style="flex:8">Severe</span>
+        </div>
+        <div class="bands">
+          <span style="flex:5;background:var(--b1)"></span><span style="flex:5;background:var(--b2)"></span>
+          <span style="flex:5;background:var(--b3)"></span><span style="flex:5;background:var(--b4)"></span>
+          <span style="flex:8;background:var(--b5)"></span>
+          <div class="needle" id="needle"></div>
+        </div>
+        <div class="ticks">
+          <span style="left:0%">0</span><span style="left:17.86%">5</span><span style="left:35.71%">10</span>
+          <span style="left:53.57%">15</span><span style="left:71.43%">20</span><span style="left:100%">27</span>
+        </div>
+      </div>
+
+      <p class="interp" id="interp"></p>
+      <div id="supportSlot"></div>
+
+      <table class="breakdown" id="breakdown"></table>
+
+      <div class="note">
+        A PHQ-9 score is a screening result, not a diagnosis. Only a qualified clinician can interpret it alongside your history and circumstances. In validation studies a score of 10 or more is the usual threshold for symptoms worth a clinical conversation.
+      </div>
+
+      <div class="toolbar no-print" style="margin:24px 0 0">
+        <button class="btn quiet" type="button" id="againBtn"><svg class="icon"><use href="#i-refresh"/></svg>Take it again</button>
+        <button class="btn quiet" type="button" id="printBtn"><svg class="icon"><use href="#i-print"/></svg>Save as PDF</button>
+      </div>
+    </div>
+  </section>
+
+  <div class="admin-shell">
+    <section class="panel" id="adminGate">
+      <div class="panel-bd" style="display:flex;align-items:center;gap:16px;flex-wrap:wrap">
+        <svg class="icon" style="width:20px;height:20px;color:var(--ink-3)"><use href="#i-lock"/></svg>
+        <div style="flex:1;min-width:200px">
+          <strong style="font-weight:600">Researcher access</strong>
+          <p style="font-size:13.5px;color:var(--ink-3)">Collected responses are visible to the study team only.</p>
+        </div>
+        <button class="btn quiet" type="button" id="unlockBtn">Unlock</button>
+      </div>
+    </section>
+
+    <section class="panel" id="adminPanel" style="display:none">
+      <div class="panel-hd"><h2>Collected responses</h2><span class="hint" id="storeNote"></span></div>
+      <div class="panel-bd">
+        <div class="stats" id="stats"></div>
+        <div class="dist" id="dist"></div>
+        <div class="toolbar">
+          <button class="btn quiet" type="button" id="xlsxBtn"><svg class="icon"><use href="#i-down"/></svg>Export Excel</button>
+          <button class="btn quiet" type="button" id="csvBtn"><svg class="icon"><use href="#i-down"/></svg>Export CSV</button>
+          <button class="btn quiet" type="button" id="reloadBtn"><svg class="icon"><use href="#i-refresh"/></svg>Refresh</button>
+          <button class="btn danger" type="button" id="clearBtn"><svg class="icon"><use href="#i-trash"/></svg>Delete all</button>
+        </div>
+        <div class="tablewrap"><table class="recs" id="recs"></table></div>
+        <div class="msg" id="adminMsg"></div>
+      </div>
+    </section>
+  </div>
+
+  <footer>
+    <p>The PHQ-9 was developed by Drs Robert L. Spitzer, Janet B.W. Williams and Kurt Kroenke with an educational grant from Pfizer Inc. It is free to reproduce and use without permission.</p>
+    <p>This page is a research instrument, not a medical service. If you are worried about your mental health, speak to a doctor or counsellor.</p>
+  </footer>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<script>
+(function(){
+"use strict";
+
+/* ============ content ============ */
+var ITEMS = [
+  "Little interest or pleasure in doing things",
+  "Feeling down, depressed, or hopeless",
+  "Trouble falling or staying asleep, or sleeping too much",
+  "Feeling tired or having little energy",
+  "Poor appetite or overeating",
+  "Feeling bad about yourself \u2014 or that you are a failure, or have let yourself or your family down",
+  "Trouble concentrating on things, such as reading the newspaper or watching television",
+  "Moving or speaking so slowly that other people could have noticed \u2014 or the opposite, being so fidgety or restless that you have been moving around a lot more than usual",
+  "Thoughts that you would be better off dead, or of hurting yourself in some way"
+];
+var OPTIONS = [
+  {label:"Not at all",            sub:"0"},
+  {label:"Several days",          sub:"1"},
+  {label:"More than half the days", sub:"2"},
+  {label:"Nearly every day",      sub:"3"}
+];
+var FUNCTION_OPTS = ["Not difficult at all","Somewhat difficult","Very difficult","Extremely difficult"];
+var BANDS = [
+  {max:4,  name:"Minimal",           colour:"var(--b1)", text:"Your answers fall in the minimal range. Symptoms at this level are common and usually do not need treatment."},
+  {max:9,  name:"Mild",              colour:"var(--b2)", text:"Your answers fall in the mild range. Watchful waiting is typical here \u2014 keep an eye on how you feel and repeat the questionnaire in a couple of weeks."},
+  {max:14, name:"Moderate",          colour:"var(--b3)", text:"Your answers fall in the moderate range. This is above the threshold where clinicians usually recommend a proper assessment."},
+  {max:19, name:"Moderately severe", colour:"var(--b4)", text:"Your answers fall in the moderately severe range. Talking to a doctor or counsellor soon is strongly advisable."},
+  {max:27, name:"Severe",            colour:"var(--b5)", text:"Your answers fall in the severe range. Please arrange to speak to a doctor or mental health professional."}
+];
+var HELPLINES = [
+  {name:"Kaan Pete Roi", num:"09612 119911", tel:"+8809612119911", when:"Emotional support and suicide prevention, 3pm\u20133am daily"},
+  {name:"Shastho Batayon", num:"16263", tel:"16263", when:"Government health line with mental health counselling, 24 hours"},
+  {name:"National emergency", num:"999", tel:"999", when:"Police, fire and ambulance, 24 hours"}
+];
+var ADMIN_PASSWORD = "moz@h!D";   // change this before sharing the page
+var LS_KEY = "phq9_records_v2";
+
+/* ============ tiny helpers ============ */
+function $(id){ return document.getElementById(id); }
+function esc(v){ return String(v == null ? "" : v).replace(/[&<>"']/g, function(m){
+  return ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"})[m];
+}); }
+function bandFor(score){ for(var i=0;i<BANDS.length;i++){ if(score<=BANDS[i].max) return BANDS[i]; } return BANDS[4]; }
+function uid(){
+  if (window.crypto && crypto.randomUUID) return crypto.randomUUID();
+  return "r" + Date.now().toString(36) + Math.random().toString(36).slice(2,9);
+}
+
+/* ============ storage: shared db when available, otherwise this browser ============ */
+var Store = {
+  db:null, ready:false,
+  local:function(){
+    try { return JSON.parse(localStorage.getItem(LS_KEY) || "[]"); } catch(e){ return []; }
+  },
+  putLocal:function(rec){
+    try { var r = Store.local(); r.push(rec); localStorage.setItem(LS_KEY, JSON.stringify(r)); return true; }
+    catch(e){ return false; }
+  },
+  connect:function(){
+    if (!(window.claude && typeof window.claude.use === "function")) return Promise.resolve(null);
+    return window.claude.use("db").then(function(db){
+      Store.db = db;
+      if (db) {
+        $("storeChip").className = "chip on";
+        $("storeTxt").textContent = "Shared storage";
+        $("storeChip").title = "Responses are saved to this page's shared store";
+      }
+      return db;
+    }).catch(function(){ return null; });
+  },
+  save:function(rec){
+    if (Store.db) {
+      return Store.db.collection("responses").doc(rec.id).set(rec)
+        .then(function(){ return "shared"; })
+        .catch(function(){ Store.putLocal(rec); return "local"; });
+    }
+    Store.putLocal(rec);
+    return Promise.resolve("local");
+  },
+  list:function(){
+    if (Store.db) {
+      return Store.db.collection("responses").orderBy("submittedAt","desc").limit(1000).get()
+        .then(function(snap){ return snap.docs.map(function(d){ return d.data(); }); })
+        .catch(function(){ return Store.local().slice().reverse(); });
+    }
+    return Promise.resolve(Store.local().slice().reverse());
+  },
+  clear:function(){
+    try { localStorage.removeItem(LS_KEY); } catch(e){}
+    if (!Store.db) return Promise.resolve();
+    return Store.db.collection("responses").limit(1000).get().then(function(snap){
+      return Promise.all(snap.docs.map(function(d){
+        return Store.db.collection("responses").doc(d.id).delete().catch(function(){});
+      }));
+    }).catch(function(){});
+  }
+};
+
+/* ============ build the form ============ */
+(function buildAges(){
+  var sel = $("age"), html = "";
+  for (var a = 16; a <= 80; a++) html += '<option value="' + a + '">' + a + '</option>';
+  sel.insertAdjacentHTML("beforeend", html);
+})();
+
+(function buildQuestions(){
+  var html = "";
+  for (var i = 0; i < ITEMS.length; i++) {
+    html += '<div class="q" id="q-' + i + '" role="group" aria-labelledby="qt-' + i + '">' +
+              '<div class="qn">' + (i + 1) + '</div>' +
+              '<div class="qt" id="qt-' + i + '">' + ITEMS[i] + '</div>' +
+              '<div class="scale">';
+    for (var j = 0; j < OPTIONS.length; j++) {
+      html += '<label class="opt"><input type="radio" name="q' + i + '" value="' + j + '">' +
+              '<span>' + OPTIONS[j].label + '<i>' + OPTIONS[j].sub + '</i></span></label>';
+    }
+    html += '</div><div class="qerr">Please choose one option.</div></div>';
+  }
+  $("questions").innerHTML = html;
+
+  var fn = "";
+  for (var k = 0; k < FUNCTION_OPTS.length; k++) {
+    fn += '<label class="opt"><input type="radio" name="fn" value="' + k + '">' +
+          '<span>' + FUNCTION_OPTS[k] + '</span></label>';
+  }
+  $("fnScale").innerHTML = fn;
+})();
+
+/* ============ progress ============ */
+function answeredCount(){
+  var n = 0;
+  for (var i = 0; i < 9; i++) if (document.querySelector('input[name="q' + i + '"]:checked')) n++;
+  return n;
+}
+function updateProgress(){
+  var n = answeredCount();
+  $("progLbl").textContent = n + " of 9 answered";
+  $("progFill").style.width = (n / 9 * 100) + "%";
+}
+document.addEventListener("change", function(e){
+  if (e.target && e.target.type === "radio") {
+    updateProgress();
+    var fs = e.target.closest(".q");
+    if (fs) fs.classList.remove("bad");
+  }
+  if (e.target && e.target.closest(".field")) e.target.closest(".field").classList.remove("bad");
+  if (e.target && e.target.id === "consent") $("consentBox").classList.remove("bad");
+});
+
+/* ============ validation + submit ============ */
+function fail(wrapId, focusId){
+  var el = $(wrapId);
+  el.classList.add("bad");
+  if (!fail.first) fail.first = $(focusId) || el;
+}
+
+function collect(){
+  fail.first = null;
+
+  var email = $("email").value.trim();
+  var institution = $("institution").value.trim();
+  var age = $("age").value;
+  var gender = $("gender").value;
+  var occupation = $("occupation").value;
+
+  if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) fail("f-email","email");
+  if (!institution) fail("f-inst","institution");
+  if (!age) fail("f-age","age");
+  if (!gender) fail("f-gender","gender");
+  if (!occupation) fail("f-occ","occupation");
+
+  var answers = [], total = 0, firstUnanswered = null;
+  for (var i = 8; i >= 0; i--) {                       // walk backwards so we keep the topmost gap
+    if (!document.querySelector('input[name="q' + i + '"]:checked')) {
+      $("q-" + i).classList.add("bad");
+      firstUnanswered = $("q-" + i);
+    }
+  }
+  if (!fail.first && firstUnanswered) fail.first = firstUnanswered;
+  for (var k = 0; k < 9; k++) {
+    var p = document.querySelector('input[name="q' + k + '"]:checked');
+    var v = p ? Number(p.value) : null;
+    answers.push(v);
+    if (v !== null) total += v;
+  }
+
+  if (!$("consent").checked) { $("consentBox").classList.add("bad"); if (!fail.first) fail.first = $("consent"); }
+
+  if (fail.first) {
+    fail.first.scrollIntoView({behavior:"smooth", block:"center"});
+    if (fail.first.focus) { try { fail.first.focus({preventScroll:true}); } catch(e){} }
+    return null;
+  }
+
+  var fnPick = document.querySelector('input[name="fn"]:checked');
+  var band = bandFor(total);
+  var now = new Date();
+
+  return {
+    id: uid(),
+    submittedAt: now.toISOString(),
+    localTime: now.toLocaleString(),
+    email: email,
+    institution: institution,
+    age: Number(age),
+    gender: gender,
+    occupation: occupation,
+    q1: answers[0], q2: answers[1], q3: answers[2], q4: answers[3], q5: answers[4],
+    q6: answers[5], q7: answers[6], q8: answers[7], q9: answers[8],
+    score: total,
+    band: band.name,
+    item9Positive: answers[8] > 0 ? 1 : 0,
+    difficulty: fnPick ? FUNCTION_OPTS[Number(fnPick.value)] : ""
+  };
+}
+
+$("phqForm").addEventListener("submit", function(e){
+  e.preventDefault();
+  var rec = collect();
+  if (!rec) return;
+  showResult(rec);
+  Store.save(rec).then(function(){ if (adminOpen) renderAdmin(); });
+});
+
+/* ============ result ============ */
+function showResult(rec){
+  var band = bandFor(rec.score);
+  $("scoreNum").textContent = rec.score;
+  var chip = $("bandChip");
+  chip.textContent = band.name;
+  chip.style.background = band.colour;
+  $("interp").textContent = band.text;
+  $("resultStamp").textContent = rec.localTime;
+
+  // one deliberate movement: the needle travels from 0 to the score
+  var needle = $("needle");
+  needle.style.left = "0%";
+  var target = ((rec.score + 0.5) / 28 * 100).toFixed(2) + "%";
+  requestAnimationFrame(function(){
+    requestAnimationFrame(function(){ needle.style.left = target; });
+  });
+
+  var rows = "";
+  for (var i = 0; i < 9; i++) {
+    var v = rec["q" + (i + 1)];
+    rows += "<tr><td>" + (i + 1) + "</td><td>" + esc(ITEMS[i]) + "</td><td>" +
+            esc(OPTIONS[v].label) + " &middot; " + v + "</td></tr>";
+  }
+  if (rec.difficulty) rows += "<tr><td>10</td><td>Difficulty with daily life</td><td>" + esc(rec.difficulty) + "</td></tr>";
+  $("breakdown").innerHTML = rows;
+
+  var slot = $("supportSlot");
+  if (rec.q9 > 0 || rec.score >= 20) {
+    var lines = HELPLINES.map(function(h){
+      return '<li><svg class="icon"><use href="#i-phone"/></svg><div><a href="tel:' + esc(h.tel) + '"><b>' + esc(h.name) + " " + esc(h.num) + "</b></a><span>" + esc(h.when) + "</span></div></li>";
+    }).join("");
+    slot.innerHTML =
+      '<div class="support"><h3><svg class="icon"><use href="#i-heart"/></svg>Support you can reach today</h3>' +
+      '<p style="font-size:14px;color:var(--ink-2)">You answered that you have had thoughts of being better off dead or of hurting yourself, or your score is in the severe range. Please talk to someone about this \u2014 a doctor, a counsellor, or one of the lines below. You do not have to be in crisis to call.</p>' +
+      '<ul class="lines">' + lines + "</ul></div>";
+  } else {
+    slot.innerHTML = "";
+  }
+
+  $("result").style.display = "block";
+  $("phqForm").style.display = "none";
+  $("result").scrollIntoView({behavior:"smooth", block:"start"});
+  try { $("result").focus({preventScroll:true}); } catch(e){}
+}
+
+$("againBtn").addEventListener("click", function(){
+  $("phqForm").reset();
+  document.querySelectorAll(".bad").forEach(function(el){ el.classList.remove("bad"); });
+  updateProgress();
+  $("result").style.display = "none";
+  $("phqForm").style.display = "block";
+  window.scrollTo({top:0, behavior:"smooth"});
+});
+$("printBtn").addEventListener("click", function(){ window.print(); });
+
+/* ============ theme ============ */
+$("themeBtn").addEventListener("click", function(){
+  var dark = document.documentElement.getAttribute("data-theme") === "dark";
+  if (!document.documentElement.getAttribute("data-theme")) {
+    dark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+  }
+  document.documentElement.setAttribute("data-theme", dark ? "light" : "dark");
+  $("themeTxt").textContent = dark ? "Dark" : "Light";
+});
+
+/* ============ researcher view ============ */
+var adminOpen = false;
+
+$("unlockBtn").addEventListener("click", function(){
+  var pw = window.prompt("Researcher password");
+  if (pw === null) return;
+  if (pw !== ADMIN_PASSWORD) { window.alert("That password did not match."); return; }
+  adminOpen = true;
+  $("adminGate").style.display = "none";
+  $("adminPanel").style.display = "block";
+  renderAdmin();
+  $("adminPanel").scrollIntoView({behavior:"smooth", block:"start"});
+});
+
+var cache = [];
+
+function renderAdmin(){
+  $("storeNote").textContent = Store.db ? "Shared store" : "This browser's local storage";
+  return Store.list().then(function(recs){
+    cache = recs || [];
+    renderStats(cache);
+    renderTable(cache);
+  });
+}
+
+function renderStats(recs){
+  var n = recs.length;
+  var scores = recs.map(function(r){ return Number(r.score) || 0; });
+  var mean = n ? scores.reduce(function(a,b){ return a+b; },0) / n : 0;
+  var sorted = scores.slice().sort(function(a,b){ return a-b; });
+  var median = n ? (n % 2 ? sorted[(n-1)/2] : (sorted[n/2-1] + sorted[n/2]) / 2) : 0;
+  var flagged = recs.filter(function(r){ return Number(r.q9) > 0; }).length;
+  var atRisk = recs.filter(function(r){ return Number(r.score) >= 10; }).length;
+
+  $("stats").innerHTML =
+    stat(n, "Responses") +
+    stat(n ? mean.toFixed(1) : "\u2014", "Mean score") +
+    stat(n ? median : "\u2014", "Median") +
+    stat(n ? Math.round(atRisk / n * 100) + "%" : "\u2014", "Scoring 10+") +
+    stat(flagged, "Item 9 positive");
+
+  var counts = [0,0,0,0,0];
+  recs.forEach(function(r){
+    var b = bandFor(Number(r.score) || 0);
+    counts[BANDS.indexOf(b)]++;
+  });
+  var max = Math.max.apply(null, counts.concat([1]));
+  $("dist").innerHTML = BANDS.map(function(b, i){
+    return '<div class="row"><span>' + b.name + '</span>' +
+           '<span class="bar" style="background:' + b.colour + ';width:' + (counts[i] / max * 100) + '%"></span>' +
+           '<span class="ct">' + counts[i] + "</span></div>";
+  }).join("");
+}
+function stat(v, k){ return '<div class="stat"><div class="v">' + esc(v) + '</div><div class="k">' + esc(k) + "</div></div>"; }
+
+function renderTable(recs){
+  if (!recs.length) {
+    $("recs").innerHTML = '<tbody><tr><td><div class="empty">No responses yet. They will appear here as people submit the questionnaire.</div></td></tr></tbody>';
+    return;
+  }
+  var head = "<thead><tr><th>#</th><th>Submitted</th><th>Email</th><th>Institution</th><th>Age</th><th>Gender</th><th>Occupation</th>" +
+    "<th>Q1</th><th>Q2</th><th>Q3</th><th>Q4</th><th>Q5</th><th>Q6</th><th>Q7</th><th>Q8</th><th>Q9</th>" +
+    "<th>Score</th><th>Band</th><th>Difficulty</th></tr></thead>";
+  var body = recs.map(function(r, i){
+    var cells = "<td>" + (i+1) + "</td><td>" + esc(r.localTime || r.submittedAt) + "</td><td>" + esc(r.email) +
+      "</td><td>" + esc(r.institution) + "</td><td>" + esc(r.age) + "</td><td>" + esc(r.gender) +
+      "</td><td>" + esc(r.occupation) + "</td>";
+    for (var q = 1; q <= 9; q++) {
+      var v = r["q" + q];
+      cells += (q === 9 && Number(v) > 0) ? '<td class="flag">' + esc(v) + "</td>" : "<td>" + esc(v) + "</td>";
+    }
+    cells += "<td><strong>" + esc(r.score) + "</strong></td><td>" + esc(r.band) + "</td><td>" + esc(r.difficulty || "\u2014") + "</td>";
+    return "<tr>" + cells + "</tr>";
+  }).join("");
+  $("recs").innerHTML = head + "<tbody>" + body + "</tbody>";
+}
+
+$("reloadBtn").addEventListener("click", function(){
+  renderAdmin().then(function(){ say("Refreshed."); });
+});
+
+$("clearBtn").addEventListener("click", function(){
+  if (!window.confirm("Delete every stored response? This cannot be undone.")) return;
+  Store.clear().then(function(){ return renderAdmin(); }).then(function(){ say("All responses deleted."); });
+});
+
+function say(m){ $("adminMsg").textContent = m; window.setTimeout(function(){ if ($("adminMsg").textContent === m) $("adminMsg").textContent = ""; }, 4000); }
+
+/* ---- exports ---- */
+function rowsForExport(){
+  return cache.map(function(r, i){
+    return {
+      "No.": i + 1,
+      "Submitted": r.localTime || r.submittedAt,
+      "Email": r.email || "",
+      "Institution": r.institution || "",
+      "Age": r.age,
+      "Gender": r.gender || "",
+      "Occupation": r.occupation || "",
+      "Q1": r.q1, "Q2": r.q2, "Q3": r.q3, "Q4": r.q4, "Q5": r.q5,
+      "Q6": r.q6, "Q7": r.q7, "Q8": r.q8, "Q9": r.q9,
+      "PHQ-9 score": r.score,
+      "Severity band": r.band || "",
+      "Item 9 positive": r.item9Positive,
+      "Functional difficulty": r.difficulty || ""
+    };
+  });
+}
+
+function deliver(filename, blob){
+  if (window.claude && typeof window.claude.use === "function") {
+    return window.claude.use("downloads").then(function(dl){
+      if (!dl) return anchorSave(filename, blob);
+      return dl.save({filename: filename, data: blob}).then(function(){ say("Saved " + filename + "."); },
+        function(err){ say(err && err.code === "declined" ? "Download cancelled." : "Could not save the file."); });
+    });
+  }
+  return Promise.resolve(anchorSave(filename, blob));
+}
+function anchorSave(filename, blob){
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement("a");
+  a.href = url; a.download = filename;
+  document.body.appendChild(a); a.click(); a.remove();
+  window.setTimeout(function(){ URL.revokeObjectURL(url); }, 4000);
+  say("Saved " + filename + ".");
+}
+
+$("xlsxBtn").addEventListener("click", function(){
+  if (!cache.length) { say("There is nothing to export yet."); return; }
+  if (typeof XLSX === "undefined") { say("The Excel library did not load. Use CSV instead \u2014 Excel opens it fine."); return; }
+  var ws = XLSX.utils.json_to_sheet(rowsForExport());
+  ws["!cols"] = [{wch:5},{wch:20},{wch:28},{wch:26},{wch:5},{wch:16},{wch:22}]
+    .concat([1,2,3,4,5,6,7,8,9].map(function(){ return {wch:4}; }))
+    .concat([{wch:12},{wch:19},{wch:14},{wch:22}]);
+  var wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, "PHQ-9");
+  var out = XLSX.write(wb, {bookType:"xlsx", type:"array"});
+  deliver("PHQ9_responses.xlsx", new Blob([out], {type:"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"}));
+});
+
+$("csvBtn").addEventListener("click", function(){
+  if (!cache.length) { say("There is nothing to export yet."); return; }
+  var rows = rowsForExport();
+  var heads = Object.keys(rows[0]);
+  var cell = function(v){
+    v = v == null ? "" : String(v);
+    return /[",\n]/.test(v) ? '"' + v.replace(/"/g,'""') + '"' : v;
+  };
+  var csv = "\uFEFF" + heads.join(",") + "\n" +
+    rows.map(function(r){ return heads.map(function(h){ return cell(r[h]); }).join(","); }).join("\n");
+  deliver("PHQ9_responses.csv", new Blob([csv], {type:"text/csv"}));
+});
+
+/* ============ go ============ */
+updateProgress();
+Store.connect().then(function(){ if (adminOpen) renderAdmin(); });
+})();
+</script>
+</body>
+</html>
